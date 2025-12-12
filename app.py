@@ -11,8 +11,6 @@ genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 # Gemini model
 model_name = "models/gemini-2.5-pro"
 model = genai.GenerativeModel(model_name)
-st.write("Loaded API Key:", os.getenv("GOOGLE_API_KEY"))
-
 # Predefined fallback advice
 advice_dict = {
     "normal": [
@@ -114,4 +112,5 @@ Provide exactly 3 short, clear, medically appropriate Do’s and Don'ts for {dis
                 st.write(line)
         else:
             st.error("No predefined advice available. Please consult a doctor.")
+
 
