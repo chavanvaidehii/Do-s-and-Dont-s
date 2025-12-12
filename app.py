@@ -51,7 +51,7 @@ st.set_page_config(page_title="Gemini Health Advisor")
 st.header("🩺 Health Advisor")
 
 disease_name = st.text_input(
-    "Enter the disease predicted from X-ray (e.g., Viral Pneumonia, Tuberculosis, Normal, etc):"
+    "Enter the disease predicted from X-ray (e.g., Viral Pneumonia, Tuberculosis, Normal,Anyother):"
 )
 
 if st.button("Generate DOs and DON'Ts"):
@@ -113,3 +113,4 @@ Provide exactly 3 short, clear, medically appropriate Do’s and Don'ts for {dis
                 st.write(line)
         else:
             st.error("No predefined advice available. Please consult a doctor.")
+
