@@ -11,7 +11,7 @@ genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 # Gemini model
 model_name = "models/gemini-2.5-pro"
 model = genai.GenerativeModel(model_name)
-st.write("API Key in use:", os.getenv("GOOGLE_API_KEY"))
+
 # Predefined fallback advice
 advice_dict = {
     "normal": [
@@ -51,7 +51,7 @@ st.set_page_config(page_title="Gemini Health Advisor")
 st.header("🩺 Health Advisor")
 
 disease_name = st.text_input(
-    "Enter the disease predicted from X-ray (e.g., Viral Pneumonia, Tuberculosis, Normal, Anyother):"
+    "Enter the disease predicted from X-ray (e.g., Viral Pneumonia, Tuberculosis, Normal, etc):"
 )
 
 if st.button("Generate DOs and DON'Ts"):
@@ -79,17 +79,33 @@ Provide exactly 3 short, clear, medically appropriate Do’s and Don'ts for {dis
 - Include one short safety note to consult a qualified doctor
 """
 
-    # ⭐ CASE 2: Try API → NO caching
+    # ⭐ CASE 2: Try API → cache only success
     try:
-        # Fresh API call every time
+        if "cache" not in st.session_state:
+            st.session_state.cache = {}
+
+        # If AI result previously cached
+        if disease_clean in st.session_state.cache:
+            st.subheader("🧾 AI Recommendations (via Gemini API):")
+            st.write(st.session_state.cache[disease_clean])
+            st.stop()
+
+        # Fresh API call
         response = model.generate_content(prompt)
+
+        # Store ONLY success in cache
+        st.session_state.cache[disease_clean] = response.text
 
         st.subheader("🧾 AI Recommendations (via Gemini API):")
         st.write(response.text)
 
-    except Exception as e:
+    except Exception:
         # ⭐ CASE 3: API FAILURE → Fallback WITHOUT caching
-        st.warning(f"⚠️ API error occurred: {e}. Showing fallback advice.")
+        st.warning("⚠️ API error occurred. Showing fallback advice.")
+
+        # Remove old cached value (if any)
+        if disease_clean in st.session_state.cache:
+            st.session_state.cache.pop(disease_clean, None)
 
         if disease_clean in advice_dict:
             st.subheader("🧾 Recommendations (Fallback):")
@@ -97,4 +113,3 @@ Provide exactly 3 short, clear, medically appropriate Do’s and Don'ts for {dis
                 st.write(line)
         else:
             st.error("No predefined advice available. Please consult a doctor.")
-
